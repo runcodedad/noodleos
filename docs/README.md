@@ -6,9 +6,11 @@ Welcome to the NoodleOS documentation! This directory contains comprehensive doc
 
 - **[Architecture Overview](architecture.md)** - System design principles and component organization
 - **[Boot Process](boot-process.md)** - How NoodleOS transitions from bootloader to kernel execution
+- **[File Organization](file-organization.md)** - Project structure, module organization, and rationale
 - **[Long Mode Transition](long-mode-transition.md)** - Concepts behind 32-bit to 64-bit CPU mode switching
 - **[Build System](build-system.md)** - Toolchain requirements and compilation process overview
 - **[VGA Buffer](vga-buffer.md)** - Text output system and hardware interface concepts
+- **[IDT Implementation](idt-implementation.md)** - Interrupt Descriptor Table setup and concepts
 - **[Development Guide](development-guide.md)** - Contributing guidelines and development workflow
 
 ## Documentation Philosophy
@@ -24,13 +26,15 @@ These documents focus on **concepts and design decisions** rather than implement
 
 ### For Beginners
 1. Start with **Architecture Overview** to understand the big picture
-2. Read **Boot Process** to understand system initialization
-3. Explore **VGA Buffer** to see hardware interaction concepts
+2. Read **File Organization** to understand the project structure
+3. Read **Boot Process** to understand system initialization
+4. Explore **VGA Buffer** to see hardware interaction concepts
 
 ### For Contributors  
 1. Review **Development Guide** for workflow and standards
-2. Understand **Build System** for toolchain requirements
-3. Study **Long Mode Transition** for low-level system programming concepts
+2. Study **File Organization** to understand the codebase structure
+3. Understand **Build System** for toolchain requirements
+4. Study **Long Mode Transition** for low-level system programming concepts
 
 ## Project Goals
 

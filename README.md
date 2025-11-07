@@ -96,8 +96,8 @@ make run
 This will:
 1. Start QEMU with the NoodleOS ISO
 2. Boot using GRUB 
-3. Load the kernel
-4. Display "Hi from NoodleOS!" in yellow text
+3. Load the kernel and transition to 64-bit long mode
+4. Display "Hello from NoodleOS - 64-bit Long Mode!" and "IDT initialized successfully!" messages
 
 ### Debug Mode
 To run with GDB debugging support:
@@ -126,43 +126,29 @@ make distclean
 
 ## Project Structure
 
-```
-noodleos/
-├── src/
-│   ├── lib.rs               # Kernel entry point and main library
-│   ├── vga_buffer.rs        # VGA text mode driver
-│   └── multiboot_header.s   # Multiboot2 header assembly
-├── iso/
-│   └── boot/
-│       ├── grub/
-│       │   └── grub.cfg     # GRUB configuration
-│       └── noodleos.bin     # Kernel binary (generated)
-├── target/                  # Build artifacts (ignored by git)
-├── .gitignore              # Git ignore file
-├── Cargo.toml              # Rust project configuration
-├── Makefile                # Build automation
-├── linker.ld               # Linker script
-├── build.sh                # Build script
-├── rust-toolchain.toml     # Rust toolchain specification
-├── x86_64-unknown-none.json # Custom target specification
-├── noodleos.iso            # Final ISO image (generated, ignored by git)
-└── README.md               # This file
-```
+NoodleOS follows a clean, modular architecture with `src/main.rs` as the kernel entry point and architecture-specific code organized under `src/arch/x86_64/`. The codebase is structured into logical subsystems: boot, interrupts, memory management, and hardware drivers.
+
+For detailed information about the project organization and rationale, see [docs/file-organization.md](docs/file-organization.md).
 
 ## How It Works
 
 1. **GRUB Bootloader**: GRUB loads the kernel binary according to the Multiboot2 specification
-2. **Multiboot Header**: The assembly file creates a valid Multiboot2 header that GRUB recognizes
-3. **Kernel Entry**: The `_start` function in `main.rs` is called by GRUB
-4. **VGA Output**: The kernel uses the VGA text buffer at memory address `0xb8000` to display text
-5. **Halt**: The kernel enters an infinite loop with `hlt` instruction to save CPU cycles
+2. **Multiboot Header**: Assembly code creates a valid Multiboot2 header that GRUB recognizes  
+3. **Boot Assembly**: Boot code transitions CPU from 32-bit protected mode to 64-bit long mode
+4. **Kernel Entry**: The `kernel_main()` function in `main.rs` is called from assembly
+5. **Architecture Setup**: Kernel initializes x86_64-specific components (IDT, VGA driver)
+6. **VGA Output**: Uses VGA text buffer at memory address `0xb8000` to display boot messages
+7. **Halt**: Enters an infinite loop with `hlt` instruction to save CPU cycles
+
+For detailed explanations, see the [documentation](docs/README.md).
 
 ## Build Artifacts
 
 When you build NoodleOS, the following files are generated:
 
 - `target/` - Rust build artifacts (ignored by git)
-- `src/multiboot_header.o` - Compiled multiboot header object file
+- `src/arch/x86_64/boot/multiboot_header.o` - Compiled multiboot header object file  
+- `src/arch/x86_64/boot/boot.o` - Compiled boot assembly object file
 - `iso/boot/noodleos.bin` - Final kernel binary
 - `noodleos.iso` - Bootable ISO image ready for QEMU
 
@@ -170,19 +156,41 @@ All build artifacts are ignored by git, so they won't be committed to your repos
 
 ## Code Overview
 
-### Main Kernel (`src/lib.rs`)
-- Entry point: `_start()` function
-- Clears screen and prints message
+### Main Kernel (`src/main.rs`)
+- Entry point: `kernel_main()` function called from assembly
+- Initializes architecture-specific components
+- Sets up interrupt handling and displays boot message
 - Enters halt loop
 
-### VGA Buffer (`src/vga_buffer.rs`)
-- Provides text output functionality
-- Manages VGA color attributes
-- Implements screen clearing and scrolling
+### Architecture Layer (`src/arch/`)
+- Provides hardware abstraction and architecture-specific functionality
+- Currently supports x86_64, designed to be extensible
+- Organized into logical subsystems: boot, interrupts, memory, drivers
 
-### Multiboot Header (`src/multiboot_header.s`)
-- Assembly code that creates the Multiboot2 header
-- Required for GRUB to recognize the kernel as bootable
+### Boot System (`src/arch/x86_64/boot/`)
+- **`multiboot_header.s`**: Multiboot2 header for GRUB compatibility  
+- **`boot.s`**: 32-bit to 64-bit long mode transition assembly
+- **`mod.rs`**: Boot information structures and utilities
+
+### Drivers (`src/arch/x86_64/drivers/`)
+- **`vga.rs`**: VGA text buffer for kernel output
+- Hardware abstraction layer for future driver additions
+
+### Interrupt Handling (`src/arch/x86_64/interrupts/`)
+- **`mod.rs`**: Interrupt Descriptor Table (IDT) setup and management
+- Foundation for handling CPU exceptions and hardware interrupts
+
+## Documentation
+
+NoodleOS includes comprehensive documentation in the [`docs/`](docs/) directory:
+
+- **[Documentation Index](docs/README.md)** - Overview of all documentation
+- **[Architecture Overview](docs/architecture.md)** - System design and principles  
+- **[Boot Process](docs/boot-process.md)** - Detailed boot sequence explanation
+- **[File Organization](docs/file-organization.md)** - Project structure and rationale
+- **[Development Guide](docs/development-guide.md)** - Contributing and workflow guidelines
+
+The documentation focuses on concepts and design decisions to help understand the system architecture.
 
 ## Troubleshooting
 

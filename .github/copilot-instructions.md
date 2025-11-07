@@ -56,8 +56,7 @@ Suggest code organized like this:
 
 ```
 src/
-  lib.rs
-  main.rs (kernel entry, if used)
+  main.rs (kernel entry point)
   arch/
     x86_64/
       boot/
@@ -96,8 +95,8 @@ Copilot should generate kernel entry points like:
 use core::panic::PanicInfo;
 
 #[no_mangle]
-pub extern "C" fn _start() -> ! {
-    // Kernel entry point
+pub extern "C" fn kernel_main() -> ! {
+    // Kernel entry point called from assembly boot code
     loop {}
 }
 
@@ -106,6 +105,8 @@ fn panic(_info: &PanicInfo) -> ! {
     loop {}
 }
 ```
+
+Note: The kernel uses `main.rs` as the entry point (following OS conventions) but is configured as a staticlib for proper linking with assembly boot code.
 
 ---
 

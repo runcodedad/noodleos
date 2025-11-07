@@ -2,8 +2,11 @@
 name = "noodleos"
 version = "0.1.0"
 edition = "2021"
+autobins = false
 
 [lib]
+name = "noodleos"
+path = "src/main.rs"
 crate-type = ["staticlib"]
 
 # Build for bare metal x86_64

@@ -6,7 +6,7 @@ This document describes the reorganized file structure of NoodleOS following sta
 
 ```
 src/
-├── lib.rs                      # Main kernel entry point
+├── main.rs                     # Main kernel entry point
 └── arch/                       # Architecture-specific code
     ├── mod.rs                  # Architecture module entry
     └── x86_64/                 # x86_64 specific implementations
@@ -26,10 +26,11 @@ src/
 
 ## Module Organization
 
-### `src/lib.rs`
-- Main kernel entry point
+### `src/main.rs`
+- Main kernel entry point (follows standard OS conventions)
 - Imports architecture-specific functionality
 - Contains the kernel_main() function called from assembly
+- Configured as a staticlib for linking with assembly boot code
 
 ### `src/arch/`
 - Architecture-abstraction layer
