@@ -23,6 +23,10 @@ iso/boot/noodleos.bin
 # Assembly object files
 src/*.o
 
+# Test artifacts
+boot_log.txt
+screenshot.ppm
+
 # RustRover
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore

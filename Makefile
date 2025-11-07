@@ -69,4 +69,8 @@ clean:
 distclean: clean
 	rm -rf target/
 
-.PHONY: all kernel run debug clean distclean
+# Quick test - verify OS builds and boots
+test: $(ISO_FILE)
+	./quick_test.sh
+
+.PHONY: all kernel run debug clean distclean test
