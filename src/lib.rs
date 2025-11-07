@@ -2,9 +2,9 @@
 #![no_main]
 
 use core::panic::PanicInfo;
+use arch::{clear_screen, println, setup_idt};
 
-mod vga_buffer;
-mod interrupts;
+mod arch;
 
 /// This function is called on panic.
 #[panic_handler]
@@ -16,14 +16,14 @@ fn panic(_info: &PanicInfo) -> ! {
 #[no_mangle]
 pub extern "C" fn kernel_main() -> ! {
     // Clear the screen
-    vga_buffer::clear_screen();
+    clear_screen();
     
     // Print our message - now we're truly in 64-bit long mode!
-    vga_buffer::println("Hello from NoodleOS - 64-bit Long Mode!");
+    println("Hello from NoodleOS - 64-bit Long Mode!");
     
     // Initialize the IDT
-    interrupts::setup_idt();
-    vga_buffer::println("IDT initialized successfully!");
+    setup_idt();
+    println("IDT initialized successfully!");
     
     // Halt the CPU - simple infinite loop
     loop {

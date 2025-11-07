@@ -26,20 +26,20 @@ export RUST_TARGET_PATH
 all: $(ISO_FILE)
 
 # Build the kernel
-kernel: src/multiboot_header.o src/boot.o
+kernel: src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot.o
 	$(CARGO) build --release --target $(TARGET)
 
 # Assemble multiboot header
-src/multiboot_header.o: src/multiboot_header.s
-	$(NASM) -f elf64 src/multiboot_header.s -o src/multiboot_header.o
+src/arch/x86_64/boot/multiboot_header.o: src/arch/x86_64/boot/multiboot_header.s
+	$(NASM) -f elf64 src/arch/x86_64/boot/multiboot_header.s -o src/arch/x86_64/boot/multiboot_header.o
 
 # Assemble boot code (long mode transition)
-src/boot.o: src/boot.s
-	$(NASM) -f elf64 src/boot.s -o src/boot.o
+src/arch/x86_64/boot/boot.o: src/arch/x86_64/boot/boot.s
+	$(NASM) -f elf64 src/arch/x86_64/boot/boot.s -o src/arch/x86_64/boot/boot.o
 
 # Create the kernel binary
 $(KERNEL_BIN): kernel
-	$(LD) -n -T linker.ld -o $(KERNEL_BIN) src/multiboot_header.o src/boot.o $(BUILD_DIR)/libnoodleos.a
+	$(LD) -n -T linker.ld -o $(KERNEL_BIN) src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot.o $(BUILD_DIR)/libnoodleos.a
 
 # Copy kernel to ISO directory
 $(KERNEL_DEST): $(KERNEL_BIN)
@@ -60,8 +60,8 @@ debug: $(ISO_FILE)
 # Clean build artifacts
 clean:
 	$(CARGO) clean
-	rm -f src/multiboot_header.o
-	rm -f src/boot.o
+	rm -f src/arch/x86_64/boot/multiboot_header.o
+	rm -f src/arch/x86_64/boot/boot.o
 	rm -f $(ISO_FILE)
 	rm -f $(KERNEL_DEST)
 
