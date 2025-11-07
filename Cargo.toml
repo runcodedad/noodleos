@@ -12,6 +12,15 @@ crate-type = ["staticlib"]
 # Build for bare metal x86_64
 [dependencies]
 
+[features]
+default = []
+# Test features for development
+test-exceptions = []
+test-divide-by-zero = []
+# Future test categories
+test-memory = []
+test-hardware = []
+
 [profile.dev]
 panic = "abort"
 

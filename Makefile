@@ -73,4 +73,18 @@ distclean: clean
 test: $(ISO_FILE)
 	./quick_test.sh
 
-.PHONY: all kernel run debug clean distclean test
+# Build with exception tests enabled
+test-exceptions:
+	$(CARGO) build --release --target $(TARGET) --features test-exceptions
+	$(LD) -n -T linker.ld -o $(KERNEL_BIN) src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot.o $(BUILD_DIR)/libnoodleos.a
+	cp $(KERNEL_BIN) $(KERNEL_DEST)
+	$(GRUB_MKRESCUE) -o $(ISO_FILE) $(ISO_DIR)
+
+# Build and test divide by zero exception
+test-divide-by-zero:
+	$(CARGO) build --release --target $(TARGET) --features test-exceptions,test-divide-by-zero
+	$(LD) -n -T linker.ld -o $(KERNEL_BIN) src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot.o $(BUILD_DIR)/libnoodleos.a
+	cp $(KERNEL_BIN) $(KERNEL_DEST)
+	$(GRUB_MKRESCUE) -o $(ISO_FILE) $(ISO_DIR)
+
+.PHONY: all kernel run debug clean distclean test test-exceptions test-divide-by-zero

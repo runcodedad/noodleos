@@ -10,18 +10,21 @@ show_help() {
     echo "Usage: $0 [option]"
     echo ""
     echo "Options:"
-    echo "  run       - Run OS in QEMU with GUI (default)"
-    echo "  debug     - Run OS with GDB debugging support (-s -S)"
-    echo "  test      - Quick automated test (build + boot verification)"
-    echo "  build     - Build the OS without running"
-    echo "  clean     - Clean build artifacts"
-    echo "  monitor   - Run with QEMU monitor for advanced debugging"
-    echo "  help      - Show this help"
+    echo "  run              - Run OS in QEMU with GUI (default)"
+    echo "  debug            - Run OS with GDB debugging support (-s -S)"
+    echo "  test             - Quick automated test (build + boot verification)"
+    echo "  test-exceptions  - Build with exception test framework"
+    echo "  test-divide-zero - Build and test divide by zero exception"
+    echo "  build            - Build the OS without running"
+    echo "  clean            - Clean build artifacts"
+    echo "  monitor          - Run with QEMU monitor for advanced debugging"
+    echo "  help             - Show this help"
     echo ""
     echo "Examples:"
-    echo "  $0           # Run with GUI"
-    echo "  $0 debug    # Start with GDB server on :1234"
-    echo "  $0 test     # Quick CI-style test"
+    echo "  $0                    # Run with GUI"
+    echo "  $0 debug             # Start with GDB server on :1234"
+    echo "  $0 test              # Quick CI-style test"
+    echo "  $0 test-divide-zero  # Test divide by zero handler"
 }
 
 # Colors for output
@@ -153,6 +156,20 @@ case "${1:-run}" in
     "test")
         check_prerequisites
         run_test
+        ;;
+    "test-exceptions")
+        check_prerequisites
+        log_info "Building with exception test framework..."
+        make test-exceptions
+        log_success "Exception test build completed"
+        ;;
+    "test-divide-zero")
+        check_prerequisites
+        log_info "Building with divide by zero test..."
+        make test-divide-by-zero
+        log_success "Divide by zero test build completed"
+        log_warning "This build will trigger a divide by zero exception!"
+        log_info "Run with: ./dev.sh run"
         ;;
     "build")
         check_prerequisites

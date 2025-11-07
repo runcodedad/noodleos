@@ -6,6 +6,9 @@ use arch::{clear_screen, println, setup_idt};
 
 mod arch;
 
+#[cfg(feature = "test-exceptions")]
+mod tests;
+
 /// This function is called on panic.
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
@@ -24,6 +27,15 @@ pub extern "C" fn kernel_main() -> ! {
     // Initialize the IDT
     setup_idt();
     println("IDT initialized successfully!");
+    
+    // Run tests if enabled via features
+    #[cfg(feature = "test-exceptions")]
+    {
+        tests::run_all_tests();
+    }
+    
+    println("Kernel initialization complete.");
+    println("System ready. CPU will now halt.");
     
     // Halt the CPU - simple infinite loop
     loop {
