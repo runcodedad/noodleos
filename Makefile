@@ -22,6 +22,9 @@ QEMU = qemu-system-x86_64
 RUST_TARGET_PATH = $(shell pwd)
 export RUST_TARGET_PATH
 
+# Helper variables
+COMMA := ,
+
 # Default target
 all: $(ISO_FILE)
 
@@ -73,18 +76,66 @@ distclean: clean
 test: $(ISO_FILE)
 	./quick_test.sh
 
-# Build with exception tests enabled
-test-exceptions:
-	$(CARGO) build --release --target $(TARGET) --features test-exceptions
+# List available test targets
+list-tests:
+	@echo "Available test targets:"
+	@echo "  Build only: $(addprefix test-,$(TEST_TARGETS))"
+	@echo "  Run tests:  $(addprefix run-test-,$(TEST_TARGETS))"
+	@echo "  Debug tests: $(addprefix debug-test-,$(TEST_TARGETS))"
+	@echo ""
+	@echo "Example usage:"
+	@echo "  make run-test-divide-by-zero"
+	@echo "  make debug-test-exceptions"
+
+# Helper function to build kernel with specific features
+define build_test_kernel
+	$(CARGO) build --release --target $(TARGET) --features $(1)
 	$(LD) -n -T linker.ld -o $(KERNEL_BIN) src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot.o $(BUILD_DIR)/libnoodleos.a
 	cp $(KERNEL_BIN) $(KERNEL_DEST)
 	$(GRUB_MKRESCUE) -o $(ISO_FILE) $(ISO_DIR)
+endef
 
-# Build and test divide by zero exception
-test-divide-by-zero:
-	$(CARGO) build --release --target $(TARGET) --features test-exceptions,test-divide-by-zero
-	$(LD) -n -T linker.ld -o $(KERNEL_BIN) src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot.o $(BUILD_DIR)/libnoodleos.a
-	cp $(KERNEL_BIN) $(KERNEL_DEST)
-	$(GRUB_MKRESCUE) -o $(ISO_FILE) $(ISO_DIR)
+# Specific test build targets (explicit for reliability)
+test-exceptions: src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot.o
+	$(call build_test_kernel,test-exceptions)
 
-.PHONY: all kernel run debug clean distclean test test-exceptions test-divide-by-zero
+test-divide-by-zero: src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot.o
+	$(call build_test_kernel,test-exceptions$(COMMA)test-divide-by-zero)
+
+test-memory: src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot.o
+	$(call build_test_kernel,test-memory)
+
+test-hardware: src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot.o
+	$(call build_test_kernel,test-hardware)
+
+# Explicit run test targets (pattern rules weren't working reliably)
+run-test-exceptions: test-exceptions
+	$(QEMU) -cdrom $(ISO_FILE)
+
+run-test-divide-by-zero: test-divide-by-zero
+	$(QEMU) -cdrom $(ISO_FILE)
+
+run-test-memory: test-memory
+	$(QEMU) -cdrom $(ISO_FILE)
+
+run-test-hardware: test-hardware
+	$(QEMU) -cdrom $(ISO_FILE)
+
+# Explicit debug test targets
+debug-test-exceptions: test-exceptions
+	$(QEMU) -cdrom $(ISO_FILE) -s -S
+
+debug-test-divide-by-zero: test-divide-by-zero
+	$(QEMU) -cdrom $(ISO_FILE) -s -S
+
+debug-test-memory: test-memory
+	$(QEMU) -cdrom $(ISO_FILE) -s -S
+
+debug-test-hardware: test-hardware
+	$(QEMU) -cdrom $(ISO_FILE) -s -S
+
+# Available test targets (for documentation and make completion)
+TEST_TARGETS = exceptions divide-by-zero memory hardware
+
+# Mark test targets as phony so they always rebuild
+.PHONY: all kernel run debug clean distclean test list-tests $(addprefix test-,$(TEST_TARGETS)) $(addprefix run-test-,$(TEST_TARGETS)) $(addprefix debug-test-,$(TEST_TARGETS))
