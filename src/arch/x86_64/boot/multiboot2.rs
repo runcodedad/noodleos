@@ -103,22 +103,27 @@ struct BootInfoHeader {
 }
 
 /// Iterator over memory map entries
+/// This implements the standard Rust Iterator trait so we can use for loops
 pub struct MemoryMapIter {
-    current: *const u8,
-    end: *const u8,
-    entry_size: u32,
+    current: *const u8,     // Points to the current entry we're reading
+    end: *const u8,         // Points past the last entry
+    entry_size: u32,        // How many bytes each entry takes (from Multiboot2)
 }
 
 impl Iterator for MemoryMapIter {
-    type Item = MemoryMapEntry;
+    type Item = MemoryMapEntry;  // Each call to next() returns a MemoryMapEntry
     
     fn next(&mut self) -> Option<Self::Item> {
+        // Check if we've reached the end
         if self.current >= self.end {
             return None;
         }
         
         unsafe {
+            // Cast the raw pointer to MemoryMapEntry and dereference it
+            // This works because Multiboot2 guarantees the memory layout matches our struct
             let entry = *(self.current as *const MemoryMapEntry);
+            // Move pointer forward by entry_size bytes to the next entry
             self.current = self.current.add(self.entry_size as usize);
             Some(entry)
         }
@@ -154,10 +159,18 @@ impl BootInfo {
     /// Finds and returns an iterator over memory map entries
     pub fn memory_map(&self) -> Option<MemoryMapIter> {
         unsafe {
+            // Skip the first 8 bytes (BootInfoHeader: total_size + _reserved)
+            // The Multiboot2 spec defines the structure as:
+            //   u32 total_size
+            //   u32 reserved (must be 0)
+            //   followed by tags
             let mut current = (self.addr + 8) as *const TagHeader;
             let end = (self.addr + self.total_size() as usize) as *const TagHeader;
             
             while (current as usize) < (end as usize) {
+                // We can cast to TagHeader because the Multiboot2 spec guarantees
+                // that every tag starts with: u32 type, u32 size
+                // Our TagHeader struct matches this exact layout (#[repr(C, packed)])
                 let tag = &*current;
                 
                 if tag.tag_type == TagType::End as u32 {
@@ -165,8 +178,13 @@ impl BootInfo {
                 }
                 
                 if tag.tag_type == TagType::MemoryMap as u32 {
+                    // Cast to MemoryMapTag because we know this is a memory map tag
+                    // The Multiboot2 spec defines memory map tags as:
+                    //   u32 type, u32 size, u32 entry_size, u32 entry_version
+                    //   followed by the actual memory entries
                     let mmap_tag = current as *const MemoryMapTag;
                     let entry_size = (*mmap_tag).entry_size;
+                    // Skip the 16 bytes of MemoryMapTag header to get to entries
                     let entries_start = (mmap_tag as *const u8).add(16);
                     let entries_end = (current as *const u8).add((*mmap_tag).size as usize);
                     
