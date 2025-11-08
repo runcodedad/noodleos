@@ -6,19 +6,6 @@
 /// - Initial page table setup
 /// - GDT configuration for 64-bit mode
 
-// Re-export any boot-related functionality here
-// For now, this is mainly assembly code, but we may add Rust boot utilities later
+pub mod multiboot2;
 
-/// Boot information and utilities
-pub mod info {
-    /// Multiboot2 magic number
-    pub const MULTIBOOT2_MAGIC: u32 = 0x36d76289;
-    
-    /// Basic boot information structure
-    /// This can be expanded as we add more boot features
-    #[repr(C)]
-    pub struct BootInfo {
-        pub magic: u32,
-        pub multiboot_info: u32,
-    }
-}
+pub use multiboot2::{BootInfo, MULTIBOOT2_MAGIC};

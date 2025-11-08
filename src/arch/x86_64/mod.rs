@@ -13,4 +13,5 @@ pub mod drivers;
 
 // Re-export commonly used functionality for convenience
 pub use interrupts::setup_idt;
-pub use drivers::{clear_screen, println};
+pub use drivers::{clear_screen, print, println};
+pub use memory::init_memory;

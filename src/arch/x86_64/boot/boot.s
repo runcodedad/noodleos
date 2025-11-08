@@ -12,8 +12,8 @@ _start:
     mov esp, stack_top
     
     ; Save multiboot information (if needed later)
-    mov edi, ebx    ; Multiboot info structure pointer
-    mov esi, eax    ; Multiboot magic number
+    mov [multiboot_info_ptr], ebx  ; Save multiboot info structure pointer
+    mov [multiboot_magic], eax      ; Save multiboot magic number
     
     ; Check if we're running on a supported CPU
     call check_multiboot
@@ -145,11 +145,21 @@ long_mode_start:
     mov rsp, stack_top
     
     ; Call Rust kernel main function
+    ; Pass multiboot info pointer (saved in edi) and magic (saved in esi) as parameters
+    mov rdi, [multiboot_info_ptr]  ; First parameter (multiboot info address)
+    mov rsi, [multiboot_magic]      ; Second parameter (multiboot magic)
     extern kernel_main
     call kernel_main
     
     ; If kernel_main ever returns (shouldn't happen), halt
     hlt
+
+section .data
+; Storage for multiboot information
+multiboot_info_ptr:
+    dq 0
+multiboot_magic:
+    dq 0
 
 section .bss
 align 4096

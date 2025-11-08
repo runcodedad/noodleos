@@ -44,6 +44,11 @@ pub fn print_string(message: &str) {
     }
 }
 
+/// Print a string without newline
+pub fn print(message: &str) {
+    print_string(message);
+}
+
 /// Print a string and move to the next line
 pub fn println(message: &str) {
     print_string(message);

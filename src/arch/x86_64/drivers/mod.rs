@@ -6,4 +6,4 @@
 pub mod vga;
 
 // Re-export commonly used driver functionality
-pub use vga::{clear_screen, println};
+pub use vga::{clear_screen, print, println};

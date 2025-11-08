@@ -2,7 +2,7 @@
 #![no_main]
 
 use core::panic::PanicInfo;
-use arch::{clear_screen, println, setup_idt};
+use arch::{clear_screen, println, setup_idt, init_memory};
 
 mod arch;
 
@@ -17,7 +17,7 @@ fn panic(_info: &PanicInfo) -> ! {
 
 /// Kernel entry point called by the bootloader
 #[no_mangle]
-pub extern "C" fn kernel_main() -> ! {
+pub extern "C" fn kernel_main(multiboot_info_addr: usize, multiboot_magic: usize) -> ! {
     // Clear the screen
     clear_screen();
     
@@ -27,6 +27,9 @@ pub extern "C" fn kernel_main() -> ! {
     // Initialize the IDT
     setup_idt();
     println("IDT initialized successfully!");
+    
+    // Initialize memory subsystem
+    init_memory(multiboot_info_addr, multiboot_magic);
     
     // Run tests if enabled via features
     #[cfg(feature = "test-exceptions")]
