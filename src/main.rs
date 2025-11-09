@@ -6,7 +6,7 @@ use arch::{clear_screen, println, setup_idt, init_memory};
 
 mod arch;
 
-#[cfg(feature = "test-exceptions")]
+#[cfg(feature = "run-tests")]
 mod tests;
 
 /// This function is called on panic.
@@ -31,8 +31,8 @@ pub extern "C" fn kernel_main(multiboot_info_addr: usize, multiboot_magic: usize
     // Initialize memory subsystem
     init_memory(multiboot_info_addr, multiboot_magic);
     
-    // Run tests if enabled via features
-    #[cfg(feature = "test-exceptions")]
+    // Run tests if enabled
+    #[cfg(feature = "run-tests")]
     {
         tests::run_all_tests();
     }

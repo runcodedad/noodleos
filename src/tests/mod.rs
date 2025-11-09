@@ -38,16 +38,17 @@ pub fn run_all_tests() {
         feature = "test-hardware"
     )))]
     {
-        println("No tests enabled.");
+        println("No test categories enabled.");
+        println("");
+        println("Usage: --features run-tests,<category>");
         println("");
         println("Available test categories:");
-        println("  Exception Tests:");
-        println("    --features test-exceptions");
-        println("    --features test-divide-by-zero");
-        println("  Memory Tests (future):");
-        println("    --features test-memory");
-        println("  Hardware Tests (future):");
-        println("    --features test-hardware");
+        println("  test-exceptions      - IDT and exception handling tests");
+        println("  test-divide-by-zero  - Divide by zero exception test");
+        println("  test-memory          - Physical memory allocator tests");
+        println("  test-hardware        - Hardware driver tests (future)");
+        println("");
+        println("Example: cargo build --features run-tests,test-memory");
     }
     
     println("=== TEST SUITE COMPLETE ===");

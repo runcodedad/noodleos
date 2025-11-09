@@ -14,10 +14,11 @@ crate-type = ["staticlib"]
 
 [features]
 default = []
-# Test features for development
+# Master test runner - enables test module
+run-tests = []
+# Individual test categories
 test-exceptions = []
 test-divide-by-zero = []
-# Future test categories
 test-memory = []
 test-hardware = []
 

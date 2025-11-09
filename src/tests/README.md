@@ -25,12 +25,13 @@ Tests for CPU exception handlers including:
 - `test-divide-by-zero` - Enable divide by zero test
 
 ### Memory Tests (`memory.rs`)
-Tests for memory management functionality (placeholder for future):
-- Memory allocation
-- Page table operations
+Tests for memory management functionality:
+- Physical memory allocator (bitmap implementation)
+- Frame allocation/deallocation
+- Memory statistics
 
 **Features:**
-- `test-memory` - Enable memory tests (future)
+- `test-memory` - Enable memory allocator tests
 
 ### Hardware Tests (`hardware.rs`)
 Tests for hardware drivers (placeholder for future):
@@ -43,25 +44,30 @@ Tests for hardware drivers (placeholder for future):
 
 ## Usage
 
+The test framework uses a two-level feature system:
+1. `run-tests` - Enables the test module in the kernel
+2. `test-<category>` - Enables specific test categories
+
 ### Build Commands
 ```bash
+# Build with memory allocator tests
+cargo build --release --target x86_64-unknown-none --features run-tests,test-memory
+
 # Build with exception tests
-make test-exceptions
-cargo build --features test-exceptions
+cargo build --release --target x86_64-unknown-none --features run-tests,test-exceptions
 
-# Build with specific exception test
-make test-divide-by-zero
-cargo build --features test-exceptions,test-divide-by-zero
+# Build with multiple test categories
+cargo build --release --target x86_64-unknown-none --features run-tests,test-exceptions,test-memory
 
-# Build with all test categories (future)
-cargo build --features test-exceptions,test-memory,test-hardware
+# After building, create ISO and run
+make iso
+qemu-system-x86_64 -cdrom noodleos.iso
 ```
 
-### Development Script
-```bash
-./dev.sh test-exceptions      # Build with exception test framework
-./dev.sh test-divide-zero     # Build with divide by zero test
-```
+### Why Two Features?
+- `run-tests` keeps the test module out of production builds
+- Individual test categories let you control what runs
+- Cleaner separation between test infrastructure and test content
 
 ## Adding New Tests
 

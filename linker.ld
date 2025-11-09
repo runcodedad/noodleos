@@ -3,6 +3,8 @@ ENTRY(_start)
 SECTIONS {
     . = 1M;
 
+    __kernel_start = .;
+
     .boot :
     {
         /* ensure that the multiboot header is at the beginning */
@@ -27,4 +29,6 @@ SECTIONS {
         /* Page tables and stack from boot.s */
         *(.bss)
     }
+
+    __kernel_end = .;
 }
