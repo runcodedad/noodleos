@@ -12,17 +12,17 @@ This document provides a high-level view of NoodleOS architecture, design princi
 │          Kernel Space               │
 │  ┌─────────────┐  ┌─────────────┐  │
 │  │ VGA Buffer  │  │   Drivers   │  │
-│  │   Module    │  │  (Future)   │  │
+│  │   Driver    │  │  (Future)   │  │
 │  └─────────────┘  └─────────────┘  │
 │  ┌─────────────┐  ┌─────────────┐  │
 │  │   Memory    │  │ Interrupts  │  │
-│  │ Management  │  │  (Future)   │  │
-│  │  (Future)   │  └─────────────┘  │
-│  └─────────────┘                   │
+│  │ Allocator   │  │   System    │  │
+│  │ (Physical)  │  │  (IDT/ISR)  │  │
+│  └─────────────┘  └─────────────┘  │
 ├─────────────────────────────────────┤
 │         Hardware Layer              │
 │  ┌─────────────┐  ┌─────────────┐  │
-│  │ VGA Device  │  │     CPU     │  │
+│  │ VGA Device  │  │  CPU/APIC   │  │
 │  └─────────────┘  └─────────────┘  │
 └─────────────────────────────────────┘
 ```
@@ -46,12 +46,37 @@ This document provides a high-level view of NoodleOS architecture, design princi
 
 ## Current Components
 
-### Core Kernel (`src/lib.rs`)
+### Core Kernel (`src/main.rs`)
 - **Entry Point**: `kernel_main()` function called by boot assembly
 - **Panic Handler**: Basic panic handling for system errors
 - **Module Coordination**: Imports and coordinates other modules
+- **Test Infrastructure**: Feature-gated testing system
 
-### VGA Buffer Module (`src/vga_buffer.rs`)
+### Interrupt System (`src/arch/x86_64/interrupts/`)
+- **IDT Setup**: Complete Interrupt Descriptor Table implementation
+- **Exception Handlers**: CPU exceptions (divide by zero, page fault, GPF, etc.)
+- **Hardware Interrupts**: Timer, keyboard, and spurious interrupt handlers
+- **Modular Design**: Separate files for exceptions, hardware, and setup
+
+**Key Features:**
+- 7 implemented exception handlers with detailed error reporting
+- 3 hardware interrupt handlers
+- Feature-gated testing system
+- Professional code organization
+
+### Memory Management (`src/arch/x86_64/memory/`)
+- **Physical Allocator**: Bitmap-based frame allocator
+- **4KB Frame Management**: Allocation and deallocation of physical frames
+- **Multiboot2 Integration**: Memory map parsing from bootloader
+- **Statistics Tracking**: Real-time memory usage information
+
+**Key Features:**
+- First-fit allocation with hint optimization
+- Contiguous frame allocation support
+- Thread-safe with atomic operations
+- Comprehensive testing infrastructure
+
+### VGA Buffer Module (`src/arch/x86_64/drivers/vga.rs`)
 - **Direct Hardware Access**: Memory-mapped VGA text buffer
 - **Text Output**: Functions to write characters and strings
 - **Screen Management**: Clear screen, scroll, positioning
@@ -61,8 +86,10 @@ This document provides a high-level view of NoodleOS architecture, design princi
 - 80×25 character display
 - Hardware scrolling capability
 
-### Boot Components
+### Boot Components (`src/arch/x86_64/boot/`)
 - **Multiboot Header**: Assembly code for bootloader interface
+- **Long Mode Transition**: 32-bit to 64-bit mode switching
+- **Page Table Setup**: Initial identity mapping
 - **Linker Script**: Memory layout and section organization
 - **GRUB Configuration**: Bootloader setup
 
@@ -126,9 +153,13 @@ Custom target specification for bare-metal x86_64 development:
 
 ## Extension Points
 
+### Implemented Features ✅
+1. **Interrupt Handling**: IDT setup with exception and hardware interrupt handlers
+2. **Physical Memory Management**: Bitmap-based frame allocator
+
 ### Planned Features (in order)
-1. **Interrupt Handling**: IDT setup, timer, keyboard
-2. **Memory Management**: Page tables, heap allocator
+1. **Virtual Memory Management**: Page table utilities, higher-half kernel mapping
+2. **Heap Allocator**: Dynamic memory allocation for kernel
 3. **Process Management**: Task switching, scheduler
 4. **File System**: Simple filesystem implementation
 5. **User Mode**: Ring 3 execution, system calls

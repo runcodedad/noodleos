@@ -100,4 +100,15 @@ After successful boot, NoodleOS has:
 - **Stable Platform**: Ready for additional kernel subsystems
 - **Hardware Access**: Direct memory-mapped I/O capabilities
 
-This foundation provides a solid base for implementing additional operating system features like interrupt handling, memory management, and device drivers.
+## Kernel Initialization Sequence
+
+Once in 64-bit mode, the kernel (`kernel_main` in `src/main.rs`) performs:
+
+1. **VGA Initialization**: Clear screen and prepare text output
+2. **Welcome Message**: Display system identification
+3. **IDT Setup**: Initialize interrupt descriptor table with exception and hardware interrupt handlers
+4. **Memory Management**: Initialize physical memory allocator from Multiboot2 memory map
+5. **Testing** (if enabled): Run feature-gated tests for exceptions or memory
+6. **Ready State**: Enter halt loop, ready to handle interrupts
+
+This foundation provides a solid base for implementing additional operating system features.

@@ -38,7 +38,9 @@ Each handler provides:
 ### Implemented Handlers
 - **Timer Interrupt (32)** - System timer (PIT/APIC)
 - **Keyboard Interrupt (33)** - PS/2 keyboard input
+- **Serial Port Interrupt (35)** - Serial communication
 - **Spurious Interrupt (255)** - APIC spurious interrupts
+- **Unhandled Interrupt** - Default handler for all other vectors
 
 ### Placeholder Infrastructure
 Ready for expansion to support:

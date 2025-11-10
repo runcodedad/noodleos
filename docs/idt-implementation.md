@@ -6,7 +6,7 @@ This document describes the IDT implementation for NoodleOS. The IDT is a fundam
 
 ## What We've Implemented
 
-### IDT Structure (`src/interrupts.rs`)
+### IDT Structure (`src/arch/x86_64/interrupts/idt.rs`)
 
 1. **IdtEntry**: Each entry in the IDT (16 bytes on x86_64)
    - Contains the address of the interrupt handler
@@ -21,29 +21,62 @@ This document describes the IDT implementation for NoodleOS. The IDT is a fundam
    - Contains 256 entries (standard for x86_64)
    - Provides methods to set handlers and load the IDT
 
+### Exception Handlers (`src/arch/x86_64/interrupts/exceptions.rs`)
+
+Complete implementation of critical CPU exception handlers:
+- Divide by zero, debug, breakpoint
+- Invalid opcode, double fault
+- General protection fault, page fault
+- Each with descriptive error reporting
+
+### Hardware Interrupt Handlers (`src/arch/x86_64/interrupts/hardware.rs`)
+
+Foundation for hardware interrupt handling:
+- Timer interrupt (system clock)
+- Keyboard interrupt (PS/2 input)
+- Serial port interrupt
+- Spurious interrupt handling
+- Generic unhandled interrupt handler
+
 ### Key Features
 
 - **Safe Rust Interface**: Wrapper around low-level x86_64 structures
-- **Basic Setup**: Creates an empty IDT with minimal configuration
-- **Dummy Handler**: Simple handler that halts on any interrupt
+- **Complete Handler Set**: All critical exceptions implemented
+- **Modular Architecture**: Separate files for different handler types
+- **Professional Error Reporting**: Detailed exception information
 - **LIDT Integration**: Properly loads the IDT using the LIDT instruction
+- **Testing Infrastructure**: Feature-gated testing system
 
 ### Current Implementation Status
 
-#### ✅ Implemented Handlers
-- **Vector 0**: Divide by Zero Exception (#DE) with detailed error reporting
+#### ✅ Implemented Exception Handlers (Vectors 0-31)
+- **Vector 0**: Divide by Zero Exception (#DE)
+- **Vector 1**: Debug Exception (#DB)
+- **Vector 3**: Breakpoint Exception (#BP)
+- **Vector 6**: Invalid Opcode (#UD)
+- **Vector 8**: Double Fault (#DF)
+- **Vector 13**: General Protection Fault (#GP)
+- **Vector 14**: Page Fault (#PF)
 
-#### 🚧 Planned Handlers
-- Vector 6: Invalid Opcode (#UD)
-- Vector 13: General Protection Fault (#GP)  
-- Vector 14: Page Fault (#PF)
-- Vector 8: Double Fault (#DF)
+All exception handlers provide:
+- Detailed error messages
+- Exception vector and type information
+- Clear indication of system state
+- Controlled system halt
+
+#### ✅ Implemented Hardware Interrupt Handlers (Vectors 32-255)
+- **Vector 32**: Timer Interrupt (PIT/APIC)
+- **Vector 33**: Keyboard Interrupt (PS/2)
+- **Vector 35**: Serial Port Interrupt
+- **Vector 255**: Spurious Interrupt (APIC)
+- **Default**: Unhandled interrupt handler for all other vectors
 
 #### 📋 Configuration
 - 256 IDT entries (standard x86_64 configuration)
 - Uses code segment selector 0x08 (assumes GDT is properly set up)
 - All handlers configured as interrupt gates
 - Detailed error reporting with VGA text output
+- Modular architecture with separate files for exceptions and hardware interrupts
 
 ## Code Structure
 
