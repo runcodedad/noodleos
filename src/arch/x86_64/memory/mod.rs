@@ -11,6 +11,19 @@ use crate::arch::println;
 use super::boot::{BootInfo, MULTIBOOT2_MAGIC};
 
 pub mod physical;
+pub mod paging;
+pub mod frame_alloc;
+pub mod mapper;
+pub mod examples;
+pub mod tests;
+
+// Re-export commonly used types
+pub use paging::{
+    Page, PageTable, PageTableEntry, PageTableFlags, PageTableLevel,
+    PhysAddr, PhysFrame, VirtAddr,
+};
+pub use frame_alloc::{FrameAllocator, BitmapFrameAllocator};
+pub use mapper::{Mapper, MapError, flush_page, flush_all, read_cr3, write_cr3};
 
 /// Basic memory constants for x86_64
 pub mod constants {

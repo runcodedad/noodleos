@@ -31,10 +31,18 @@ pub fn run_all_tests() {
         hardware::run_hardware_tests();
     }
     
+    // Virtual memory tests
+    #[cfg(feature = "test-virtual-memory")]
+    {
+        crate::arch::x86_64::memory::tests::test_virtual_memory();
+        crate::arch::x86_64::memory::tests::test_cr3_access();
+    }
+    
     // Show available tests if none are enabled
     #[cfg(not(any(
         feature = "test-exceptions",
-        feature = "test-memory", 
+        feature = "test-memory",
+        feature = "test-virtual-memory",
         feature = "test-hardware"
     )))]
     {
@@ -45,7 +53,8 @@ pub fn run_all_tests() {
         println("Available test categories:");
         println("  test-exceptions      - IDT and exception handling tests");
         println("  test-divide-by-zero  - Divide by zero exception test");
-        println("  test-memory          - Physical memory allocator tests");
+        println("  test-memory          - Physical and virtual memory tests");
+        println("  test-virtual-memory  - Virtual memory system tests only");
         println("  test-hardware        - Hardware driver tests (future)");
         println("");
         println("Example: cargo build --features run-tests,test-memory");

@@ -20,6 +20,7 @@ run-tests = []
 test-exceptions = []
 test-divide-by-zero = []
 test-memory = []
+test-virtual-memory = []
 test-hardware = []
 
 [profile.dev]

@@ -103,10 +103,13 @@ test-divide-by-zero: src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boo
 	$(call build_test_kernel,test-exceptions$(COMMA)test-divide-by-zero)
 
 test-memory: src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot.o
-	$(call build_test_kernel,test-memory)
+	$(call build_test_kernel,run-tests$(COMMA)test-memory)
+
+test-virtual-memory: src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot.o
+	$(call build_test_kernel,run-tests$(COMMA)test-virtual-memory)
 
 test-hardware: src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot.o
-	$(call build_test_kernel,test-hardware)
+	$(call build_test_kernel,run-tests$(COMMA)test-hardware)
 
 # Explicit run test targets (pattern rules weren't working reliably)
 run-test-exceptions: test-exceptions
@@ -135,7 +138,7 @@ debug-test-hardware: test-hardware
 	$(QEMU) -cdrom $(ISO_FILE) -s -S
 
 # Available test targets (for documentation and make completion)
-TEST_TARGETS = exceptions divide-by-zero memory hardware
+TEST_TARGETS = exceptions divide-by-zero memory virtual-memory hardware
 
 # Mark test targets as phony so they always rebuild
 .PHONY: all kernel run debug clean distclean test list-tests $(addprefix test-,$(TEST_TARGETS)) $(addprefix run-test-,$(TEST_TARGETS)) $(addprefix debug-test-,$(TEST_TARGETS))
