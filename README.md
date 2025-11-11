@@ -113,6 +113,44 @@ gdb
 (gdb) continue
 ```
 
+## Testing
+
+NoodleOS includes a comprehensive testing framework for validation and development.
+
+### Quick Start
+
+```bash
+# Run tests using the test script
+./test_vm.sh                # Virtual memory tests
+./test_vm.sh memory         # All memory tests
+./test_vm.sh exceptions     # Exception tests
+
+# Or use Make targets directly
+make test-virtual-memory && make run
+make test-memory && make run
+make list-tests             # Show all available tests
+```
+
+### Available Test Categories
+
+| Category | Command | Description |
+|----------|---------|-------------|
+| Virtual Memory | `./test_vm.sh virtual` | Page tables, addresses, translation (28 tests) |
+| Memory | `./test_vm.sh memory` | Physical + virtual memory allocators |
+| Exceptions | `./test_vm.sh exceptions` | IDT and exception handlers |
+
+### Documentation
+
+For complete testing documentation, see **[Testing Guide](src/tests/docs/README.md)**
+
+Topics covered:
+- Running tests with the test script or Make
+- All available test categories and flags
+- Test output interpretation
+- Adding new tests
+- Debugging failed tests
+- CI/CD integration
+
 ### Cleaning Build Artifacts
 To clean up build artifacts:
 

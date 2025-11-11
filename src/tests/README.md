@@ -2,14 +2,34 @@
 
 This directory contains the testing framework for NoodleOS. Tests are organized by category and enabled via Cargo features to keep production builds clean.
 
+## 📚 Complete Documentation
+
+**See [docs/README.md](docs/README.md) for the complete testing guide** including:
+- How to run all test categories
+- Test output interpretation
+- Adding new tests
+- Debugging and CI/CD integration
+
+## Quick Reference
+
+```bash
+./test_vm.sh virtual     # Virtual memory tests
+./test_vm.sh memory      # All memory tests  
+./test_vm.sh exceptions  # Exception tests
+make list-tests          # Show all test targets
+```
+
 ## Directory Structure
 
 ```
 tests/
-├── mod.rs           # Main test coordinator
-├── exceptions.rs    # Exception handler tests
-├── memory.rs        # Memory management tests (placeholder)
-└── hardware.rs      # Hardware driver tests (placeholder)
+├── docs/
+│   ├── README.md         # Complete testing guide
+│   └── virtual-memory.md # Virtual memory test details
+├── mod.rs                # Main test coordinator
+├── exceptions.rs         # Exception handler tests
+├── memory.rs             # Memory test runner
+└── hardware.rs           # Hardware driver tests (future)
 ```
 
 ## Test Categories
@@ -29,9 +49,14 @@ Tests for memory management functionality:
 - Physical memory allocator (bitmap implementation)
 - Frame allocation/deallocation
 - Memory statistics
+- Virtual memory system (page tables, addresses, mapping)
+- Page table entry operations
+- Address translation indices
+- CR3 register access
 
 **Features:**
-- `test-memory` - Enable memory allocator tests
+- `test-memory` - Enable all memory tests (physical + virtual)
+- `test-virtual-memory` - Enable only virtual memory tests
 
 ### Hardware Tests (`hardware.rs`)
 Tests for hardware drivers (placeholder for future):

@@ -4,18 +4,31 @@ Welcome to the NoodleOS documentation! This directory contains comprehensive doc
 
 ## Documentation Structure
 
+### System Architecture
 - **[Architecture Overview](architecture.md)** - System design principles and component organization
 - **[Boot Process](boot-process.md)** - How NoodleOS transitions from bootloader to kernel execution
-- **[File Organization](file-organization.md)** - Project structure, module organization, and rationale
-- **[Kernel Entry Point](kernel-entry-point.md)** - Main kernel entry structure and configuration
 - **[Long Mode Transition](long-mode-transition.md)** - Concepts behind 32-bit to 64-bit CPU mode switching
-- **[Build System](build-system.md)** - Toolchain requirements and compilation process overview
-- **[Makefile Architecture](makefile-architecture.md)** - Scalable build system design and test infrastructure
-- **[VGA Buffer](vga-buffer.md)** - Text output system and hardware interface concepts
+- **[Kernel Entry Point](kernel-entry-point.md)** - Main kernel entry structure and configuration
+
+### Memory Management
+- **[Memory Allocator](memory_allocator.md)** - Physical memory allocator design and implementation
+- **[Virtual Memory](virtual-memory.md)** - Page tables, address translation, and mapping
+
+### Interrupts & Exceptions
 - **[IDT Implementation](idt-implementation.md)** - Interrupt Descriptor Table setup and concepts
 - **[Interrupt System](interrupt-system.md)** - Complete interrupt handling architecture and implementation
-- **[Memory Allocator](memory_allocator.md)** - Physical memory allocator design and implementation
+
+### Hardware Interface
+- **[VGA Buffer](vga-buffer.md)** - Text output system and hardware interface concepts
+
+### Development & Testing
+- **[Build System](build-system.md)** - Toolchain requirements and compilation process overview
+- **[Makefile Architecture](makefile-architecture.md)** - Scalable build system design and test infrastructure
 - **[Development Guide](development-guide.md)** - Contributing guidelines and development workflow
+- **[Testing Guide](../src/tests/docs/README.md)** - Complete testing documentation and test categories
+
+### Project Organization
+- **[File Organization](file-organization.md)** - Project structure, module organization, and rationale
 
 ## Documentation Philosophy
 
