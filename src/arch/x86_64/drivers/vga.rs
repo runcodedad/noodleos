@@ -21,6 +21,30 @@ pub fn clear_screen() {
     }
 }
 
+/// Scroll the screen up by one line
+fn scroll_up() {
+    let vga_buffer = VGA_BUFFER;
+    unsafe {
+        // Copy each line to the previous line
+        for row in 1..BUFFER_HEIGHT {
+            for col in 0..BUFFER_WIDTH {
+                let src = (row * BUFFER_WIDTH + col) * 2;
+                let dst = ((row - 1) * BUFFER_WIDTH + col) * 2;
+                *vga_buffer.add(dst) = *vga_buffer.add(src);         // character
+                *vga_buffer.add(dst + 1) = *vga_buffer.add(src + 1); // color
+            }
+        }
+        
+        // Clear the last line
+        let last_row = BUFFER_HEIGHT - 1;
+        for col in 0..BUFFER_WIDTH {
+            let offset = (last_row * BUFFER_WIDTH + col) * 2;
+            *vga_buffer.add(offset) = b' ';     // space
+            *vga_buffer.add(offset + 1) = 0x0F; // white on black
+        }
+    }
+}
+
 /// Print a string at the current cursor position
 pub fn print_string(message: &str) {
     let vga_buffer = VGA_BUFFER;
@@ -31,8 +55,10 @@ pub fn print_string(message: &str) {
                 // Move to next line
                 CURSOR_POS = ((CURSOR_POS / BUFFER_WIDTH) + 1) * BUFFER_WIDTH;
             } else {
+                // Check if we need to scroll
                 if CURSOR_POS >= BUFFER_WIDTH * BUFFER_HEIGHT {
-                    break; // Don't write past screen bounds
+                    scroll_up();
+                    CURSOR_POS = (BUFFER_HEIGHT - 1) * BUFFER_WIDTH;
                 }
                 
                 let offset = CURSOR_POS * 2;

@@ -76,14 +76,34 @@ distclean: clean
 test: $(ISO_FILE)
 	./quick_test.sh
 
+# Build all tests
+test-all: src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot.o
+	@echo "Building kernel with all tests enabled..."
+	$(call build_test_kernel,run-tests$(COMMA)test-exceptions$(COMMA)test-memory$(COMMA)test-virtual-memory$(COMMA)test-hardware)
+
+# Run all tests
+run-test-all: test-all
+	@echo "Running all tests..."
+	$(QEMU) -cdrom $(ISO_FILE)
+
+# Debug all tests
+debug-test-all: test-all
+	@echo "Running all tests with debugger..."
+	$(QEMU) -cdrom $(ISO_FILE) -s -S
+
 # List available test targets
 list-tests:
 	@echo "Available test targets:"
+	@echo "  Build all:  test-all"
+	@echo "  Run all:    run-test-all"
+	@echo "  Debug all:  debug-test-all"
+	@echo ""
 	@echo "  Build only: $(addprefix test-,$(TEST_TARGETS))"
 	@echo "  Run tests:  $(addprefix run-test-,$(TEST_TARGETS))"
 	@echo "  Debug tests: $(addprefix debug-test-,$(TEST_TARGETS))"
 	@echo ""
 	@echo "Example usage:"
+	@echo "  make run-test-all           # Run all tests"
 	@echo "  make run-test-divide-by-zero"
 	@echo "  make debug-test-exceptions"
 
@@ -141,4 +161,4 @@ debug-test-hardware: test-hardware
 TEST_TARGETS = exceptions divide-by-zero memory virtual-memory hardware
 
 # Mark test targets as phony so they always rebuild
-.PHONY: all kernel run debug clean distclean test list-tests $(addprefix test-,$(TEST_TARGETS)) $(addprefix run-test-,$(TEST_TARGETS)) $(addprefix debug-test-,$(TEST_TARGETS))
+.PHONY: all kernel run debug clean distclean test list-tests test-all run-test-all debug-test-all $(addprefix test-,$(TEST_TARGETS)) $(addprefix run-test-,$(TEST_TARGETS)) $(addprefix debug-test-,$(TEST_TARGETS))

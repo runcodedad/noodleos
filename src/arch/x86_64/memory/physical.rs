@@ -104,13 +104,17 @@ impl BitmapAllocator {
         }
         
         // Mark kernel memory as reserved
+        let kernel_frames = ((kernel_end - kernel_start) + PAGE_SIZE - 1) / PAGE_SIZE;
+        free_count = free_count.saturating_sub(kernel_frames);
         self.mark_region_reserved(kernel_start, kernel_end);
         
-        // Mark bitmap memory as reserved
+        // Mark bitmap memory as reserved  
+        let bitmap_frames = ((bitmap_end - bitmap_start) + PAGE_SIZE - 1) / PAGE_SIZE;
+        free_count = free_count.saturating_sub(bitmap_frames);
         self.mark_region_reserved(bitmap_start, bitmap_end);
         
-        // Update free frame counter
-        self.free_frames.store(self.count_free_frames(), Ordering::Relaxed);
+        // Update free frame counter with the tracked count instead of recalculating
+        self.free_frames.store(free_count, Ordering::Relaxed);
     }
     
     /// Mark a memory region as free (available for allocation)
