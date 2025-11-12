@@ -18,6 +18,10 @@ LD = ld
 GRUB_MKRESCUE = grub-mkrescue
 QEMU = qemu-system-x86_64
 
+# QEMU Configuration
+QEMU_MEMORY ?= 128M  # Default memory size, can be overridden: make run QEMU_MEMORY=256M
+QEMU_FLAGS = -m $(QEMU_MEMORY)
+
 # Flags
 RUST_TARGET_PATH = $(shell pwd)
 export RUST_TARGET_PATH
@@ -54,11 +58,36 @@ $(ISO_FILE): $(KERNEL_DEST)
 
 # Run in QEMU
 run: $(ISO_FILE)
-	$(QEMU) -cdrom $(ISO_FILE)
+	$(QEMU) $(QEMU_FLAGS) -cdrom $(ISO_FILE)
 
 # Run in QEMU with debugging
 debug: $(ISO_FILE)
-	$(QEMU) -cdrom $(ISO_FILE) -s -S
+	$(QEMU) $(QEMU_FLAGS) -cdrom $(ISO_FILE) -s -S
+
+# Memory size tests - verify allocator with different RAM amounts
+test-mem-64m: $(ISO_FILE)
+	@echo "Testing with 64MB RAM..."
+	$(QEMU) -m 64M -cdrom $(ISO_FILE)
+
+test-mem-128m: $(ISO_FILE)
+	@echo "Testing with 128MB RAM (default)..."
+	$(QEMU) -m 128M -cdrom $(ISO_FILE)
+
+test-mem-256m: $(ISO_FILE)
+	@echo "Testing with 256MB RAM..."
+	$(QEMU) -m 256M -cdrom $(ISO_FILE)
+
+test-mem-512m: $(ISO_FILE)
+	@echo "Testing with 512MB RAM..."
+	$(QEMU) -m 512M -cdrom $(ISO_FILE)
+
+test-mem-1g: $(ISO_FILE)
+	@echo "Testing with 1GB RAM..."
+	$(QEMU) -m 1G -cdrom $(ISO_FILE)
+
+test-mem-2g: $(ISO_FILE)
+	@echo "Testing with 2GB RAM..."
+	$(QEMU) -m 2G -cdrom $(ISO_FILE)
 
 # Clean build artifacts
 clean:
@@ -74,7 +103,7 @@ distclean: clean
 
 # Quick test - verify OS builds and boots
 test: $(ISO_FILE)
-	./quick_test.sh
+	tests/scripts/quick_test.sh
 
 # Build all tests
 test-all: src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot.o
@@ -84,12 +113,12 @@ test-all: src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot.o
 # Run all tests
 run-test-all: test-all
 	@echo "Running all tests..."
-	$(QEMU) -cdrom $(ISO_FILE)
+	$(QEMU) $(QEMU_FLAGS) -cdrom $(ISO_FILE)
 
 # Debug all tests
 debug-test-all: test-all
 	@echo "Running all tests with debugger..."
-	$(QEMU) -cdrom $(ISO_FILE) -s -S
+	$(QEMU) $(QEMU_FLAGS) -cdrom $(ISO_FILE) -s -S
 
 # List available test targets
 list-tests:
@@ -133,32 +162,33 @@ test-hardware: src/arch/x86_64/boot/multiboot_header.o src/arch/x86_64/boot/boot
 
 # Explicit run test targets (pattern rules weren't working reliably)
 run-test-exceptions: test-exceptions
-	$(QEMU) -cdrom $(ISO_FILE)
+	$(QEMU) $(QEMU_FLAGS) -cdrom $(ISO_FILE)
 
 run-test-divide-by-zero: test-divide-by-zero
-	$(QEMU) -cdrom $(ISO_FILE)
+	$(QEMU) $(QEMU_FLAGS) -cdrom $(ISO_FILE)
 
 run-test-memory: test-memory
-	$(QEMU) -cdrom $(ISO_FILE)
+	$(QEMU) $(QEMU_FLAGS) -cdrom $(ISO_FILE)
 
 run-test-hardware: test-hardware
-	$(QEMU) -cdrom $(ISO_FILE)
+	$(QEMU) $(QEMU_FLAGS) -cdrom $(ISO_FILE)
 
 # Explicit debug test targets
 debug-test-exceptions: test-exceptions
-	$(QEMU) -cdrom $(ISO_FILE) -s -S
+	$(QEMU) $(QEMU_FLAGS) -cdrom $(ISO_FILE) -s -S
 
 debug-test-divide-by-zero: test-divide-by-zero
-	$(QEMU) -cdrom $(ISO_FILE) -s -S
+	$(QEMU) $(QEMU_FLAGS) -cdrom $(ISO_FILE) -s -S
 
 debug-test-memory: test-memory
-	$(QEMU) -cdrom $(ISO_FILE) -s -S
+	$(QEMU) $(QEMU_FLAGS) -cdrom $(ISO_FILE) -s -S
 
 debug-test-hardware: test-hardware
-	$(QEMU) -cdrom $(ISO_FILE) -s -S
+	$(QEMU) $(QEMU_FLAGS) -cdrom $(ISO_FILE) -s -S
 
 # Available test targets (for documentation and make completion)
 TEST_TARGETS = exceptions divide-by-zero memory virtual-memory hardware
+MEMORY_TEST_TARGETS = test-mem-64m test-mem-128m test-mem-256m test-mem-512m test-mem-1g test-mem-2g
 
 # Mark test targets as phony so they always rebuild
-.PHONY: all kernel run debug clean distclean test list-tests test-all run-test-all debug-test-all $(addprefix test-,$(TEST_TARGETS)) $(addprefix run-test-,$(TEST_TARGETS)) $(addprefix debug-test-,$(TEST_TARGETS))
+.PHONY: all kernel run debug clean distclean test list-tests test-all run-test-all debug-test-all $(addprefix test-,$(TEST_TARGETS)) $(addprefix run-test-,$(TEST_TARGETS)) $(addprefix debug-test-,$(TEST_TARGETS)) $(MEMORY_TEST_TARGETS)

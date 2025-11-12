@@ -21,32 +21,65 @@ Complete guide for running and understanding tests in NoodleOS.
 
 ## Quick Start
 
-### Using the Test Script (Recommended)
+### Using the Test Runner (Recommended)
 
-The easiest way to run tests is using the test script:
+The easiest way to run tests is using the unified test runner:
 
 ```bash
-# Run virtual memory tests (default)
-./test_vm.sh
+# Quick boot test
+tests/scripts/run_tests.sh quick
 
 # Run specific test category
-./test_vm.sh virtual     # Virtual memory tests only
-./test_vm.sh memory      # Physical + virtual memory tests
-./test_vm.sh exceptions  # Exception handling tests
+tests/scripts/run_tests.sh exceptions
+tests/scripts/run_tests.sh memory
+tests/scripts/run_tests.sh virtual-memory
+tests/scripts/run_tests.sh hardware
+
+# Test with different memory sizes
+tests/scripts/run_tests.sh --memory 256M memory
+tests/scripts/run_tests.sh --memory 1G virtual-memory
+
+# Test all memory configurations
+tests/scripts/run_tests.sh --all-memory
+
+# Debug mode
+tests/scripts/run_tests.sh --debug exceptions
+
+# Show all options
+tests/scripts/run_tests.sh --help
 ```
 
-### Using Make Targets
+### Using Legacy Test Scripts
+
+Individual test scripts are also available:
+
+```bash
+# Quick boot test
+tests/scripts/quick_test.sh
+
+# Virtual memory tests
+tests/scripts/test_vm.sh virtual
+
+# Memory size validation
+tests/scripts/test_memory_sizes.sh
+```
+
+### Using Make Targets Directly
 
 You can also use Make directly:
 
 ```bash
-# Build with tests
-make test-virtual-memory
-make test-memory
-make test-exceptions
+# Build and run tests
+make run-test-exceptions
+make run-test-memory
+make run-test-virtual-memory
+make run-test-hardware
 
-# Then run
-make run
+# Test with specific memory size
+make run-test-memory QEMU_MEMORY=512M
+
+# Debug tests
+make debug-test-exceptions
 ```
 
 ### List All Available Tests

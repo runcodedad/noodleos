@@ -120,14 +120,18 @@ NoodleOS includes a comprehensive testing framework for validation and developme
 ### Quick Start
 
 ```bash
-# Run tests using the test script
-./test_vm.sh                # Virtual memory tests
-./test_vm.sh memory         # All memory tests
-./test_vm.sh exceptions     # Exception tests
+# Use the unified test runner (recommended)
+tests/scripts/run_tests.sh quick              # Quick boot test
+tests/scripts/run_tests.sh exceptions         # Exception tests
+tests/scripts/run_tests.sh memory             # Memory tests
+tests/scripts/run_tests.sh --memory 512M memory   # Custom RAM size
+tests/scripts/run_tests.sh --all-memory       # Test all RAM configs
+tests/scripts/run_tests.sh --help             # Show all options
 
 # Or use Make targets directly
-make test-virtual-memory && make run
-make test-memory && make run
+make test                   # Quick test
+make run-test-memory        # Memory tests
+make test-mem-512m          # Test with 512MB RAM
 make list-tests             # Show all available tests
 ```
 
@@ -135,17 +139,36 @@ make list-tests             # Show all available tests
 
 | Category | Command | Description |
 |----------|---------|-------------|
-| Virtual Memory | `./test_vm.sh virtual` | Page tables, addresses, translation (28 tests) |
-| Memory | `./test_vm.sh memory` | Physical + virtual memory allocators |
-| Exceptions | `./test_vm.sh exceptions` | IDT and exception handlers |
+| Quick Boot | `tests/scripts/run_tests.sh quick` | Fast boot verification |
+| Exceptions | `tests/scripts/run_tests.sh exceptions` | IDT and exception handlers |
+| Memory | `tests/scripts/run_tests.sh memory` | Physical memory allocator |
+| Virtual Memory | `tests/scripts/run_tests.sh virtual-memory` | Page tables, addresses (28 tests) |
+| Hardware | `tests/scripts/run_tests.sh hardware` | Hardware interrupts |
+| All Tests | `tests/scripts/run_tests.sh all` | Complete test suite |
+
+### Test Scripts
+
+All test automation is located in `tests/scripts/`:
+
+- **`run_tests.sh`** - Unified test runner with comprehensive options
+- **`quick_test.sh`** - Fast boot verification
+- **`test_vm.sh`** - Legacy virtual memory test runner  
+- **`test_memory_sizes.sh`** - Memory configuration validator
+
+See [Test Scripts Guide](tests/scripts/README.md) for details.
 
 ### Documentation
 
-For complete testing documentation, see **[Testing Guide](src/tests/docs/README.md)**
+For complete testing documentation:
+
+- **[Testing Guide](src/tests/docs/README.md)** - Comprehensive test documentation
+- **[Memory Testing](src/tests/docs/testing-memory-sizes.md)** - Memory validation
+- **[Test Scripts](tests/scripts/README.md)** - Script usage and standards
 
 Topics covered:
-- Running tests with the test script or Make
+- Running tests with scripts or Make
 - All available test categories and flags
+- Memory size validation
 - Test output interpretation
 - Adding new tests
 - Debugging failed tests

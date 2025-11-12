@@ -54,24 +54,24 @@ impl BitmapAllocator {
     /// # Safety
     /// Must be called exactly once during kernel initialization
     pub unsafe fn init(&mut self, boot_info: &BootInfo, kernel_start: usize, kernel_end: usize) {
-        // Find the highest available memory address to determine total frames
-        let mut highest_addr = 0u64;
+        // Calculate total available memory (not highest address!)
+        // This represents actual usable RAM, not address space holes
+        let mut total_available = 0u64;
         
         if let Some(mmap) = boot_info.memory_map() {
             for entry in mmap {
-                let end_addr = entry.base_addr + entry.length;
-                if end_addr > highest_addr {
-                    highest_addr = end_addr;
+                if MemoryType::from_u32(entry.mem_type) == Some(MemoryType::Available) {
+                    total_available += entry.length;
                 }
             }
         }
         
         // Cap at MAX_PHYSICAL_MEMORY
-        if highest_addr > MAX_PHYSICAL_MEMORY as u64 {
-            highest_addr = MAX_PHYSICAL_MEMORY as u64;
+        if total_available > MAX_PHYSICAL_MEMORY as u64 {
+            total_available = MAX_PHYSICAL_MEMORY as u64;
         }
         
-        self.total_frames = (highest_addr as usize) / PAGE_SIZE;
+        self.total_frames = (total_available as usize) / PAGE_SIZE;
         let bitmap_bytes = (self.total_frames + 7) / 8;
         
         // Find a suitable location for the bitmap
